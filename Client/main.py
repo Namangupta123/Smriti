@@ -19,7 +19,7 @@ def check_password():
         st.header("Client Portal Login")
         password = st.text_input("Enter password", type="password")
         if st.button("Login"):
-            correct_password = os.getenv("PORTAL_PASSWORD")
+            correct_password = os.getenv("CLIENT_PORTAL_PASSWORD")
             if not correct_password:
                 st.error("Password not configured. Please contact the administrator.")
             elif password == correct_password:

@@ -1,6 +1,4 @@
-Client/testing.py
-Client/__pycache__
-User/testing.py
-User/__pycache__
+Client/test.py
+User/test.py
 .env
 .venv
