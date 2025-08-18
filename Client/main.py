@@ -16,9 +16,9 @@ st.set_page_config(page_title="Smriti | Client Portal", page_icon="🔑", layout
 
 def send_welcome_email(recipient_email, client_passkey, user_passkey):
     """Sends the onboarding email using Brevo."""
-    sender_email = os.getenv("SENDERS_EMAIL")
-    sender_name = os.getenv("SENDER_NAME", "Smriti")
-    brevo_api_key = os.getenv("BREVO_API_KEY")
+    sender_email = st.secrets["email"]["senders_email"]
+    sender_name = "Smriti"
+    brevo_api_key = st.secrets["email"]["brevo_api_key"]
 
     if not all([sender_email, brevo_api_key]):
         st.warning("Email services are not fully configured. The welcome email will not be sent.")
@@ -80,7 +80,6 @@ if not st.session_state.client_email:
                 st.info("Welcome back! Please enter your Client Passkey to continue.")
             else:
                 with st.spinner("Setting up your new account..."):
-                    # NOTE: Ensure your database.py now returns 4 keys
                     client_key, user_key, s3_folder, rekog_collection = generate_unique_keys()
                     new_client = ClientDB(
                         email=email_input,
@@ -121,9 +120,9 @@ if st.session_state.client_verified:
     
     s3_client = boto3.client(
         "s3",
-        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-        region_name=os.getenv("S3_REGION")
+        aws_access_key_id=st.secrets["aws"]["access_key_id"],
+        aws_secret_access_key=st.secrets["aws"]["secret_access_key"],
+        region_name=st.secrets["aws"]["s3_region"]
     )
     
     uploaded_files = st.file_uploader(

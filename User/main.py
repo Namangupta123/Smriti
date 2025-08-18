@@ -20,14 +20,14 @@ SELFIE_EXTERNAL_ID = "selfie_user_runtime"
 
 def make_clients():
     try:
-        s3 = boto3.client("s3", aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"), aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"), region_name=os.getenv("S3_REGION"))
-        rekog = boto3.client("rekognition", aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"), aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"), region_name=os.getenv("S3_REGION"))
+        s3 = boto3.client("s3", aws_access_key_id=st.secrets["aws"]["access_key_id"], aws_secret_access_key=st.secrets["aws"]["secret_access_key"], region_name=st.secrets["aws"]["s3_region"])
+        rekog = boto3.client("rekognition", aws_access_key_id=st.secrets["aws"]["access_key_id"], aws_secret_access_key=st.secrets["aws"]["secret_access_key"], region_name=st.secrets["aws"]["s3_region"])
         return s3, rekog
     except (KeyError, NoCredentialsError):
         return None, None
 
 s3_client, rekognition = make_clients()
-S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
+S3_BUCKET_NAME = st.secrets["aws"]["s3_bucket_name"]
 
 def ensure_collection(collection_id: str):
     try:
@@ -56,7 +56,7 @@ def list_all_s3_photos(_bucket: str, _folder: str):
     for page in paginator.paginate(Bucket=_bucket, Prefix=_folder):
         for obj in page.get("Contents", []):
             key = obj["Key"]
-            if key.lower().endswith((".jpg", ".jpeg", ".png")):
+            if key.lower().endswith(('jpg', 'jpeg', 'png', 'HEIC', 'raw', 'cr2', 'dng', 'nef')):
                 keys.append(key)
     return keys
 

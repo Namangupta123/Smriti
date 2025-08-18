@@ -1,11 +1,11 @@
-import os
 import uuid
+import streamlit as st
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = st.secrets["database"]["database_url"]
 if not DATABASE_URL:
     raise ValueError("No DATABASE_URL set in environment variables.")
 
