@@ -9,7 +9,7 @@ from botocore.exceptions import NoCredentialsError, ClientError
 from dotenv import load_dotenv
 
 load_dotenv()
-st.set_page_config(page_title="Smriti :) Find your moments", page_icon=":camera:", layout="centered")
+st.set_page_config(page_title="Smriti | Finding Your Precious Moments", page_icon=":sparkles:", layout="centered")
 
 BATCH_SIZE = 25
 MAX_WORKERS = 8
@@ -51,6 +51,7 @@ def ensure_collection(collection_id: str):
     except rekognition.exceptions.ResourceNotFoundException:
         rekognition.create_collection(CollectionId=collection_id)
 
+
 def purge_faces_with_external_id(collection_id: str, external_id: str):
     """Delete any existing faces with the given ExternalImageId (cleanup from previous runs)."""
     next_token = None
@@ -71,6 +72,7 @@ def purge_faces_with_external_id(collection_id: str, external_id: str):
         chunk = faces_to_delete[i:i+100]
         if chunk:
             rekognition.delete_faces(CollectionId=collection_id, FaceIds=chunk)
+
 
 def index_selfie(selfie_bytes: bytes, collection_id: str, external_id: str):
     """Index selfie; returns True if at least one face indexed."""
@@ -96,6 +98,7 @@ def list_all_s3_photos(bucket: str, folder: str):
                 keys.append(key)
     return keys
 
+
 def retry_search_faces_by_image(bucket: str, key: str, collection_id: str, max_retries: int = 5):
     """Call search_faces_by_image with simple exponential backoff to handle throttling."""
     delay = 0.2
@@ -119,6 +122,7 @@ def retry_search_faces_by_image(bucket: str, key: str, collection_id: str, max_r
             raise
     return []
 
+
 def process_batch_parallel(batch_keys, bucket, collection_id, max_workers=MAX_WORKERS):
     """Run Rekognition searches concurrently for a batch of keys."""
     matches = []
@@ -137,6 +141,7 @@ def process_batch_parallel(batch_keys, bucket, collection_id, max_workers=MAX_WO
                 st.sidebar.warning(f"Error on {key}: {e}")
     return matches
 
+
 def build_zip_for_keys(bucket: str, keys: list[str]) -> io.BytesIO:
     buff = io.BytesIO()
     with zipfile.ZipFile(buff, "a", zipfile.ZIP_DEFLATED, False) as zf:
@@ -148,6 +153,7 @@ def build_zip_for_keys(bucket: str, keys: list[str]) -> io.BytesIO:
                 st.sidebar.warning(f"Could not add {k} to zip: {e}")
     buff.seek(0)
     return buff
+
 
 st.title("Smriti :) Find your moments")
 st.markdown("Take a clear selfie and I’ll find all your photos from the wedding collection.")
@@ -189,7 +195,7 @@ if st.button("Start Search", type="primary", use_container_width=True, disabled=
                 st.stop()
 
         except Exception as e:
-            st.error(f"Error starting search: {e}")
+            st.error(f"Error starting search: {e} Please contact Client")
             st.session_state.search_active = False
             st.stop()
 
@@ -235,7 +241,7 @@ if st.session_state.matched_s3_keys:
                 st.error(f"Could not display {os.path.basename(key)}")
 
 if st.session_state.search_active and st.session_state.processed_index >= len(st.session_state.all_photo_keys):
-    st.success("✅ All photos have been processed!")
+    st.success("All photos have been processed!")
     if not st.session_state.matched_s3_keys:
         st.info("No matches were found in the entire collection.")
     st.session_state.search_active = False

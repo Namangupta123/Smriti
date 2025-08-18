@@ -7,11 +7,7 @@ import requests
 
 load_dotenv()
 
-st.set_page_config(
-    page_title="Smriti :) Find your moments",
-    page_icon=":camera:",
-    layout="centered"
-)
+st.set_page_config(page_title="Smriti | Finding Your Precious Moments", page_icon=":sparkles:", layout="centered")
 
 def check_password():
     """Returns `True` if the user entered the correct password."""
