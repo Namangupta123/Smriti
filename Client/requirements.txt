@@ -3,3 +3,4 @@ streamlit
 python-dotenv
 sqlalchemy
 sib_api_v3_sdk
+psycopg2-binary
