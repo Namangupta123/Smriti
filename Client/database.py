@@ -1,0 +1,33 @@
+import os
+import uuid
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.orm import sessionmaker, declarative_base
+from dotenv import load_dotenv
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("No DATABASE_URL set in environment variables.")
+
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+class ClientDB(Base):
+    __tablename__ = "clients"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    client_passkey = Column(String, unique=True, nullable=False)
+    user_passkey = Column(String, unique=True, nullable=False)
+    s3_folder_path = Column(String, unique=True, nullable=False)
+    rekognition_collection_id = Column(String, unique=True, nullable=False)
+
+def create_db_and_tables():
+    Base.metadata.create_all(bind=engine)
+
+def generate_unique_keys():
+    client_key = f"smriti_client_{uuid.uuid4().hex[:8]}"
+    user_key = f"smriti_user_{uuid.uuid4().hex[:8]}"
+    s3_folder = f"Wedding_images/{uuid.uuid4().hex}"
+    rekognition_collection_id = f"smriti-collection-{uuid.uuid4().hex}"
+    return client_key, user_key, s3_folder, rekognition_collection_id
