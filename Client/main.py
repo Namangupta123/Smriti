@@ -14,14 +14,12 @@ from database import SessionLocal, ClientDB, create_db_and_tables, generate_uniq
 
 load_dotenv()
 
-st.set_page_config(page_title="Smriti | Client Portal", page_icon="🔑", layout="centered")
+st.set_page_config(page_title="Smriti | Client Portal", page_icon=":key:", layout="centered")
 st.title("Smriti :) Client Portal")
 
 def get_bucket_name() -> str:
     return (
-        st.secrets.get("aws", {}).get("s3_bucket")
-        or os.getenv("S3_BUCKET_NAME")
-        or ""
+        st.secrets.aws.s3_bucket_name
     )
 
 def new_s3_client():
