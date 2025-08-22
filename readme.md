@@ -23,14 +23,16 @@ The system is composed of two primary, independent portals:
 - **Automated Batch Processing:** Efficiently handles massive photo collections without timing out by processing images in manageable chunks.  
 - **Personalized Gallery:** Displays a beautiful, responsive grid of all your matched photos.  
 - **Highlights Slideshow:** Enjoy a client-curated slideshow of the event's best moments upon entry.  
-- **One-Click Download:** Download a `.zip` archive of all your found memories.  
+- **One-Click Download:** Download a `.zip` archive of all your found memories.
+- **Link:** [User-Portal](https://user-smriti.streamlit.app)
 
 ### Client Portal
 - **Secure & Private:** A password-protected interface for event hosts and photographers.  
 - **Multi-Client Onboarding:** A professional onboarding system that uses a PostgreSQL database to manage multiple clients, each with unique passkeys and isolated storage.  
 - **Automated Welcome Emails:** New clients automatically receive their unique access keys via email, powered by **Brevo**.  
 - **Scalable S3 Uploads:** Upload entire photo collections directly to a private AWS S3 bucket using secure, high-performance presigned URLs.  
-- **Slideshow Curation:** Clients can easily browse their uploaded photos and select their favorites to be featured in the guest portal's highlights slideshow.  
+- **Slideshow Curation:** Clients can easily browse their uploaded photos and select their favorites to be featured in the guest portal's highlights slideshow.
+- **Link:** [Client-Portal](https://client-smriti.streamlit.app)
 
 ---
 
