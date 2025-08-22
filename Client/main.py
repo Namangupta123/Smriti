@@ -10,15 +10,12 @@ from sqlalchemy.orm import Session
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 
-# This will require a new PhotosDB table in your database file
 from database import SessionLocal, ClientDB, PhotosDB, create_db_and_tables, generate_unique_keys
 
-# --- Initial Configuration ---
 load_dotenv()
-st.set_page_config(page_title="Smriti | Client Portal", page_icon="🔑", layout="centered")
+st.set_page_config(page_title="Smriti | Client Portal", page_icon=":keys:", layout="centered")
 st.title("Smriti :) Client Portal")
 
-# --- Function Definitions ---
 
 @st.cache_resource
 def get_s3_client():
@@ -132,11 +129,9 @@ def toggle_highlight_status(db_session: Session, client_id: int, s3_key: str):
         photo = PhotosDB(client_id=client_id, s3_key=s3_key, is_highlighted=True)
         db_session.add(photo)
     db_session.commit()
-    # Clear the cache to force a refresh of the photo list
     st.cache_data.clear()
 
 
-# --- Application State and Initialization ---
 if "auth_step" not in st.session_state:
     st.session_state.auth_step = "email_input"
 if "current_client" not in st.session_state:
@@ -145,13 +140,10 @@ if "current_client" not in st.session_state:
 create_db_and_tables()
 db: Session = SessionLocal()
 
-# --- Authentication Flow ---
-
 if st.session_state.auth_step == "email_input":
     st.header("Onboarding & Login")
     email_input = st.text_input("Please enter your email address to begin:", placeholder="you@example.com")
     if st.button("Continue", type="primary"):
-        # ... (rest of the email input logic is unchanged) ...
         if not email_input:
             st.warning("Please enter an email address.")
         else:
@@ -216,7 +208,6 @@ elif st.session_state.auth_step == "uploader":
             key="file_uploader"
         )
         if st.button("Upload Photos", type="primary", use_container_width=True, disabled=(not uploaded_files)):
-            # ... (rest of the upload logic is unchanged) ...
             success_count = 0
             error_count = 0
             progress_bar = st.progress(0, text="Preparing uploads...")
@@ -238,9 +229,9 @@ elif st.session_state.auth_step == "uploader":
 
             progress_bar.empty()
             if success_count > 0:
-                st.success(f"✅ Upload complete! {success_count} photos uploaded successfully.")
+                st.success(f"Upload complete! {success_count} photos uploaded successfully.")
             if error_count > 0:
-                st.error(f"❌ {error_count} photos failed to upload.")
+                st.error(f"{error_count} photos failed to upload.")
 
 
     with tab2:
@@ -250,7 +241,6 @@ elif st.session_state.auth_step == "uploader":
         if not all_photos:
             st.info("You haven't uploaded any photos yet. Upload photos in the tab above to manage them here.")
         else:
-            # Fetch all highlight statuses in one go for efficiency
             highlighted_photos_q = db.query(PhotosDB.s3_key).filter_by(client_id=client.id, is_highlighted=True).all()
             highlighted_s3_keys = {p.s3_key for p in highlighted_photos_q}
 

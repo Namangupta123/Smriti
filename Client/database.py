@@ -1,5 +1,4 @@
 import uuid
-import os
 import streamlit as st
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
@@ -7,7 +6,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# It's better to get secrets from the environment rather than st.secrets in a non-Streamlit file
 DATABASE_URL = st.secrets.database.database_url
 if not DATABASE_URL:
     raise ValueError("No DATABASE_URL set in environment variables.")
@@ -25,17 +23,14 @@ class ClientDB(Base):
     s3_folder_path = Column(String, unique=True, nullable=False)
     rekognition_collection_id = Column(String, unique=True, nullable=False)
     
-    # Relationship to the new PhotosDB table
     photos = relationship("PhotosDB", back_populates="client")
 
-# NEW: PhotosDB table to track individual photos and their highlight status
 class PhotosDB(Base):
     __tablename__ = "photos"
     id = Column(Integer, primary_key=True, index=True)
     s3_key = Column(String, index=True, nullable=False)
     is_highlighted = Column(Boolean, default=False, nullable=False)
     
-    # Foreign key to link photos to a specific client
     client_id = Column(Integer, ForeignKey("clients.id"), nullable=False)
     client = relationship("ClientDB", back_populates="photos")
 

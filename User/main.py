@@ -9,22 +9,17 @@ from botocore.exceptions import NoCredentialsError, ClientError
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
-# You must have PhotosDB in your database file for this to work
 from database import SessionLocal, ClientDB, PhotosDB, create_db_and_tables
 
-# --- App Configuration ---
 load_dotenv()
-# Start with a centered layout for the login and slideshow
-st.set_page_config(page_title="Smriti | Finding Your Precious Moments", page_icon="✨", layout="centered")
+st.set_page_config(page_title="Smriti | Finding Your Precious Moments", page_icon=":sparkles:", layout="centered")
 
-# --- Constants ---
 BATCH_SIZE = 25
 MAX_WORKERS = 8
 FACE_MATCH_THRESHOLD = 90
 SELFIE_EXTERNAL_ID = "selfie_user_runtime"
 SLIDESHOW_DELAY_SECONDS = 4
 
-# --- AWS Client Initialization ---
 @st.cache_resource
 def make_clients():
     """Initializes and caches AWS clients."""
@@ -33,13 +28,12 @@ def make_clients():
         rekog = boto3.client("rekognition", aws_access_key_id=st.secrets["aws"]["access_key_id"], aws_secret_access_key=st.secrets["aws"]["secret_access_key"], region_name=st.secrets["aws"]["s3_region"])
         return s3, rekog
     except (KeyError, NoCredentialsError):
-        st.error("Could not connect to AWS. Please contact the event host.")
+        st.error("Keys error contact the event host")
         return None, None
 
 s3_client, rekognition = make_clients()
 S3_BUCKET_NAME = st.secrets["aws"]["s3_bucket_name"]
 
-# --- Helper Functions ---
 @st.cache_data(ttl=600, show_spinner="Fetching event highlights...")
 def get_highlighted_photos(_db_session: Session, client_id: int):
     """Fetches a list of S3 keys for highlighted photos from the database."""
@@ -110,17 +104,14 @@ def build_zip_for_keys(bucket: str, keys: list[str]) -> io.BytesIO:
     buff.seek(0)
     return buff
 
-# --- Main Application Logic ---
 st.title("Smriti :) Find your moments")
 
-# Initialize session state
 for key, default in [("passkey_verified", False), ("current_client", None), ("search_active", False), ("all_photo_keys", []), ("matched_s3_keys", []), ("processed_index", 0), ("slideshow_index", 0), ("slideshow_complete", False)]:
     if key not in st.session_state: st.session_state[key] = default
 
 db: Session = SessionLocal()
 create_db_and_tables()
 
-# --- STEP 1: Passkey Verification ---
 if not st.session_state.passkey_verified:
     st.header("Event Access")
     passkey_input = st.text_input("Please enter the User Passkey provided by the event host:", type="password")
@@ -137,14 +128,13 @@ if not st.session_state.passkey_verified:
             st.warning("Please enter a User Passkey.")
     st.stop()
 
-# --- STEP 2: Slideshow of Highlights ---
 client_config = st.session_state.current_client
 highlight_keys = get_highlighted_photos(db, client_config.id)
 
 if not st.session_state.slideshow_complete and highlight_keys:
-    st.header("✨ Event Highlights")
+    st.header(":sparkles: Event Highlights")
     
-    st.markdown("""<style> @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } } .slideshow-image { animation: fadeIn 1.5s; } </style>""", unsafe_allow_html=True)
+    st.markdown("""<style> @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } } .slideshow-image { animation: fadeIn 2.0s; } </style>""", unsafe_allow_html=True)
 
     slideshow_placeholder = st.empty()
     
@@ -165,12 +155,11 @@ if not st.session_state.slideshow_complete and highlight_keys:
     time.sleep(SLIDESHOW_DELAY_SECONDS)
     st.rerun()
 
-# --- STEP 3: Main Application ---
 if st.session_state.slideshow_complete or not highlight_keys:
     S3_WEDDING_PHOTOS_FOLDER = client_config.s3_folder_path
     COLLECTION_ID = client_config.rekognition_collection_id
 
-    if highlight_keys: # Only show the replay button if there are highlights
+    if highlight_keys:
         if st.button("↩ Replay Highlights"):
             st.session_state.slideshow_complete = False
             st.session_state.slideshow_index = 0
@@ -216,7 +205,7 @@ if st.session_state.slideshow_complete or not highlight_keys:
         st.rerun()
 
     if st.session_state.matched_s3_keys:
-        st.set_page_config(layout="wide") # Switch to wide layout for the results grid
+        st.set_page_config(layout="wide")
         st.header(f"Found you in {len(st.session_state.matched_s3_keys)} photos!")
         zip_buffer = build_zip_for_keys(S3_BUCKET_NAME, st.session_state.matched_s3_keys)
         st.download_button(label="Download All Matched Moments (.zip)", data=zip_buffer, file_name="smriti_matched_moments.zip", mime="application/zip", use_container_width=True)
