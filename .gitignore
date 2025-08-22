@@ -1,0 +1,9 @@
+Client/test.py
+User/test.py
+Client/__pycache__
+User/__pycache__
+Client/.streamlit/secrets.toml
+User/.streamlit/secrets.toml
+.env
+.venv
+.vscode
